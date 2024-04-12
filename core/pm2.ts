@@ -15,9 +15,6 @@ const MEMORY_MB = 1048576;
 const MIN_SECONDS_TO_ADD_WORKER = 10;
 const MIN_SECONDS_TO_RELEASE_WORKER = 30;
 
-const TOTAL_CPUS = getCpuCount();
-const MAX_AVAILABLE_WORKERS_COUNT = TOTAL_CPUS - 1;
-
 const APPS: { [key: string]: App } = {};
 
 const isMonitoringApp = (app: pm2.ProcessDescription) => {
@@ -187,16 +184,21 @@ function processWorkingApp(conf: IConfig, workingApp: App) {
         cpuValues.reduce((sum, value) => sum + value) / cpuValues.length
     );
 
+    const totalCpus = getCpuCount();
+    const configInstances = conf.max_instances;
+    let maxInstances: number = totalCpus - 1;
+    if (configInstances === 'max' || configInstances === 0) maxInstances = totalCpus;
+    else if (configInstances > 0) maxInstances = configInstances;
+
     const needIncreaseInstances =
         // Increase workers if any of CPUs loaded more then "scale_cpu_threshold"
         maxCpuValue >= conf.scale_cpu_threshold &&
-        // Increase workers only if we have available CPUs for that
-        workingApp.getActiveWorkersCount() < MAX_AVAILABLE_WORKERS_COUNT;
+        // Increase workers only if we have available CPUs or user defined instances for that
+        workingApp.getActiveWorkersCount() < maxInstances;
 
     if (needIncreaseInstances) {
         getLogger().info(
-            `App "${workingApp.getName()}" needs increase instance because ${maxCpuValue}>${
-                conf.scale_cpu_threshold
+            `App "${workingApp.getName()}" needs increase instance because ${maxCpuValue}>${conf.scale_cpu_threshold
             }. CPUs ${JSON.stringify(cpuValues)}`
         );
     }

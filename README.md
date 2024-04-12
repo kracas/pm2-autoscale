@@ -8,7 +8,7 @@ By default PM2 runs application with specified number of instances which is not 
 
 ## Solution
 
-The module helps dynamically increase application instances depends on CPUs utilization of every application. You can run you application with minimum required instances. When module detects that CPU utilisation is higher then `scale_cpu_threshold` it will start increasing instances to max `CPUs-1` and if server has available free memory. When module detects CPU utilization is decreasing it will stop useless instances.
+The module helps dynamically increase application instances depends on CPUs utilization of every application. You can run you application with minimum required instances. When module detects that CPU utilisation is higher then `scale_cpu_threshold` it will start increasing instances to max `CPUs-1` or `max_instances` (if set) and if server has available free memory. When module detects CPU utilization is decreasing it will stop useless instances.
 
 ## Install
 
@@ -28,6 +28,7 @@ Default settings:
 
 -   `scale_cpu_threshold` Maximum value of CPU utilization one of application instances when the module will try to increase application instances. (default to `30`)
 -   `release_cpu_threshold` Average value of all CPUs utilization of the application when the module will decrease application instances (default to `5`)
+-   `max_instances` Maximum number of application instances. If set to `0` or `max` - the maximum number of instance will be the total number of CPUs (default to `CPUs-1`)
 -   `debug` Enable debug mode to show logs from the module (default to `false`)
 
 To modify the module config values you can use the following commands:
