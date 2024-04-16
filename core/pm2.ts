@@ -25,7 +25,8 @@ const isMonitoringApp = (app: pm2.ProcessDescription) => {
         !app.name ||
         !app.pid ||
         app.pm_id === undefined || // pm_id might be zero
-        pm2_env.status !== 'online'
+        pm2_env.status !== 'online' ||
+        pm2_env.exec_mode !== 'cluster_mode'
     ) {
         return false;
     }
